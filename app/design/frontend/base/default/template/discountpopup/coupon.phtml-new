@@ -1,0 +1,276 @@
+<?php 
+$collection = $this->getCouponCollection(); 
+$currentCode = Mage::getSingleton('checkout/session')->getQuote()->getCouponCode();
+?>
+<div id="myModal" class="modal">
+    <div class="loader loader-contener"></div>
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="discount-coupon-form" action="<?php echo $this->getFormActionUrl() ?>" method="post">
+            <div class="discount">
+                <h2 class="opened"><?php echo $this->__('Discount Codes') ?></h2>
+                <div class="discount-form" style="display: block;">
+                    <label for="coupon_code"><?php echo $this->__('Enter your coupon code if you have one.') ?></label>
+                    <input type="hidden" name="remove" id="remove-coupone" value="0" />
+                    <div class="input-box">
+                        <input class="input-text" id="coupon_code" name="coupon_code" value="<?php echo $this->escapeHtml($this->getCouponCode()) ?>" />
+                    </div>
+                    <div class="buttons-set">
+                        <button type="button" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>" class="button" onclick="applyAjax()" value="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>"><span><span><?php echo $this->__('Apply Coupon') ?></span></span></button>
+                        <?php if(strlen($this->getCouponCode())): ?>
+                            &nbsp; <button type="button" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Cancel Coupon')) ?>" class="button" onclick="cancelAjax()" value="<?php echo Mage::helper('core')->quoteEscape($this->__('Cancel Coupon')) ?>"><span><span><?php echo $this->__('Cancel Coupon') ?></span></span></button>
+                        <?php endif;?>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <?php if(count($collection->getData())): ?>
+            <p class="or">or</p>
+            <p class="choose-line">Select a Promo Code</p>
+            <div class="coupon-list">
+                <?php
+					foreach ($collection as $coupon) {
+					if($currentCode == $coupon->getCode())
+					{
+						$class = 'active';
+					}
+					else
+					{
+						$class = '';
+					}
+					?>
+						<ul class="<?php echo $coupon->getCode(); ?> <?php echo $class; ?>">
+					      <li><?php echo $coupon->getCode(); ?><span class="dis"><?php echo $coupon->getDescription(); ?></span></li>
+					      <li class="col1">
+					        <button type="button" onclick="applyAjax('<?php echo $coupon->getCode(); ?>');" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>" class="button" value="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>"><span><span><?php echo $this->__('Apply Coupon') ?></span></span></button>
+					      </li>
+					     </ul>
+					<?php } ?>
+            </div>
+        <?php endif; ?>
+  </div>
+</div>
+<script>
+//<![CDATA[
+var discountForm = new VarienForm('discount-coupon-form');
+discountForm.submit = function (isRemove) {
+    if (isRemove) {
+        $('coupon_code').removeClassName('required-entry');
+        $('remove-coupone').value = "1";
+    } else {
+        $('coupon_code').addClassName('required-entry');
+        $('remove-coupone').value = "0";
+    }
+    return VarienForm.prototype.submit.bind(discountForm)();
+}
+//]]>
+var modal = document.getElementById('myModal');
+var btn = document.getElementById("myBtn");
+var span = document.getElementsByClassName("close")[0];
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+span.onclick = function() {
+    modal.style.display = "none";
+}
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+function applyAjax(code)
+{
+    runloader(code,true);
+    if(!code)
+    {
+        code = jQuery('#coupon_code').val();
+    }
+    jQuery.ajax({url: "<?php echo $this->getUrl('discountpopup/index/apply'); ?>",
+        data: 'coupon_code='+code, 
+        success: function(result){
+            var result = JSON.parse(result);
+            jQuery('.message').html(result.message).fadeIn(1000);
+            jQuery('.message').removeClass('error');
+            jQuery('.message').removeClass('success');
+            if(result.error)
+            {
+                jQuery('.message').addClass('error');
+                jQuery('#myBtn span span').html('Apply Coupon');
+                reloadTotal();
+                reloadCoupon();
+                modal.style.display = "none";
+            }
+            else
+            {
+                jQuery('.message').addClass('success');
+                jQuery('#myBtn span span').html('Cancel/Change Coupon');
+                reloadTotal();
+                reloadCoupon();
+                modal.style.display = "none";
+            }
+            jQuery('.coupon-list ul').removeClass('active');
+            jQuery('.coupon-list .'+result.code).addClass('active');
+            runloader(code,false);
+        }
+    });
+}
+
+function cancelAjax()
+{
+    runloader(false,true);
+    jQuery.ajax({url: "<?php echo $this->getUrl('discountpopup/index/apply'); ?>",
+        data: 'remove=1',
+        success: function(result){
+            var result = JSON.parse(result);
+            jQuery('.message').html(result.message).fadeIn(1000);
+            jQuery('.message').removeClass('error');
+            jQuery('.message').removeClass('success');
+            if(result.error)
+            {
+                jQuery('.message').addClass('error');
+                jQuery('#myBtn span span').html('Cancel/Change Coupon');
+                reloadTotal();
+                reloadCoupon();
+                modal.style.display = "none";
+            }
+            else
+            {
+                jQuery('.message').addClass('success');
+                jQuery('#myBtn span span').html('Apply Coupon');
+                reloadTotal();
+                reloadCoupon();
+                modal.style.display = "none";
+            }
+            runloader();
+            jQuery('.coupon-list ul').removeClass('active');
+        }
+    });
+}
+
+function reloadTotal()
+{
+    jQuery.ajax({url: "<?php echo $this->getUrl('discountpopup/index/reloadtotal'); ?>",
+        success: function(result){
+            var result = JSON.parse(result);
+            jQuery('#shopping-cart-totals-table').replaceWith(result.block)
+        }
+    });   
+}
+function reloadCoupon()
+{
+    jQuery.ajax({url: "<?php echo $this->getUrl('discountpopup/index/reloadcoupon'); ?>",
+        success: function(result){
+            var result = JSON.parse(result);
+            jQuery('#discount-coupon-form').replaceWith(result.block)
+        }
+    });   
+}
+function runloader(code,statue) {
+    if(statue)
+    {
+        jQuery('.loader-contener').show();
+    }
+    else
+    {
+        jQuery('.loader-contener').hide();
+    }
+}
+</script>
+<style>
+.loader {
+  display: none;
+  z-index: 99999;
+  position: absolute; 
+  top: 50%; 
+  left: 50%;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #e13b3f;
+  width: 50px;
+  height: 50px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.coupon-list .active { 
+    outline: none !important;
+    border:1px solid rgba(220,220,220,.54);
+    box-shadow: 0 0 10px #719ECE;
+    padding: 5px;
+}
+.coupon-list li {
+        color: #000;
+        width: 70%;
+        float: left!important;
+        font-size: 12px;
+}
+.coupon-list li .dis {
+        color: #9E9E9E;
+        font-size: 11px;
+        display: block;
+        padding: 10px 0;
+}
+.coupon-list li.col1 {
+        width: 25%;
+}
+.coupon-list ul{
+        margin: 10px 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(220,220,220,.54);
+        overflow: hidden;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+}
+#myBtn
+{
+    width: 100%;
+}
+
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+.or
+{
+    text-align: center;
+}
+</style>

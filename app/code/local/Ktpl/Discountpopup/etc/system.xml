@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <tabs>
+        <discountpopup translate="label" module="discountpopup">
+            <label>Discount Popup</label>
+            <sort_order>100</sort_order>
+        </discountpopup>
+    </tabs>
+    <sections>
+        <discountpopup translate="label" module="discountpopup">
+            <label>Discount Popup Options</label>
+            <tab>discountpopup</tab>
+            <sort_order>1000</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+ 
+            <groups>
+                <group translate="label" module="discountpopup">
+                    <label>Discount Popup Options</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1000</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enable translate="label">
+                            <label>Enable Popup: </label>
+                            <comment>Select Yes to enable Discount Popup</comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </enable>
+                        <addjquery translate="label">
+                            <label>Add jQuery: </label>
+                            <comment>Insert jQuery</comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </addjquery>
+                    </fields>
+                </group>
+            </groups>
+        </discountpopup>
+    </sections>
+</config>

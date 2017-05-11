@@ -1,0 +1,17 @@
+<?php $collection = $this->getCouponCollection(); ?>
+<?php 
+$currentCode = Mage::getSingleton('checkout/session')->getQuote()->getCouponCode();
+$message = '';
+if($currentCode)
+{
+    $message        = 'Coupon code "'.$currentCode.'" was applied';
+}
+?>
+<div class="discount">
+    <?php if($currentCode): ?>
+    <button type="button" id="myBtn" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Cancel/Change Coupon')) ?>" class="button" value="<?php echo Mage::helper('core')->quoteEscape($this->__('Cancel/Change Coupon')) ?>"><span><span><?php echo $this->__('Cancel/Change Coupon') ?></span></span></button>
+    <?php else: ?>
+        <button type="button" id="myBtn" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>" class="button" value="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>"><span><span><?php echo $this->__('Apply Coupon') ?></span></span></button>
+    <?php endif; ?>
+</div>
+<p class="message success"><?php echo $message; ?></p>

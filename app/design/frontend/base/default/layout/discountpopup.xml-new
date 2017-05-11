@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+    </default>
+    <checkout_cart_index>
+        <reference name="head">
+            <block ifconfig="discountpopup/group/addjquery" type="core/template" name="add_jquery" as="add_jquery" template="discountpopup/jquery.phtml"/>
+        </reference>
+        <reference name="checkout.cart">
+            <block ifconfig="discountpopup/group/enable" type="discountpopup/discountpopup" name="checkout.cart.coupon" as="coupon" template="discountpopup/discountpopup.phtml"/>
+        </reference>
+        <reference name="content">
+            <block ifconfig="discountpopup/group/enable" type="discountpopup/discountpopup" name="checkout.cart.coupon" as="coupon" template="discountpopup/coupon.phtml"/>
+        </reference>
+    </checkout_cart_index>
+</layout> 

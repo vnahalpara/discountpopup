@@ -1,0 +1,22 @@
+<?php $collection = $this->getCouponCollection(); ?>
+<?php
+$currentCode = Mage::getSingleton('checkout/session')->getQuote()->getCouponCode();
+// echo "<pre>";
+// print_r($collection->getData());
+foreach ($collection as $coupon) {
+if($currentCode == $coupon->getCode())
+{
+	$class = 'active';
+}
+else
+{
+	$class = '';
+}
+?>
+	<ul class="<?php echo $coupon->getCode(); ?> <?php echo $class; ?>">
+      <li><?php echo $coupon->getCode(); ?><span class="dis"><?php echo $coupon->getDescription(); ?></span></li>
+      <li class="col1">
+        <button type="button" onclick="applyAjax('<?php echo $coupon->getCode(); ?>');" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>" class="button" value="<?php echo Mage::helper('core')->quoteEscape($this->__('Apply Coupon')) ?>"><span><span><?php echo $this->__('Apply Coupon') ?></span></span></button>
+      </li>
+     </ul>
+<?php } ?>
